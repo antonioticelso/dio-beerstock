@@ -4,6 +4,7 @@ import com.github.antoniocelso.beerstock.builder.BeerDTOBuilder;
 import com.github.antoniocelso.beerstock.dto.BeerDTO;
 import com.github.antoniocelso.beerstock.entity.Beer;
 import com.github.antoniocelso.beerstock.exception.BeerAlreadyRegisteredException;
+import com.github.antoniocelso.beerstock.exception.BeerNotFoundException;
 import com.github.antoniocelso.beerstock.mapper.BeerMapper;
 import com.github.antoniocelso.beerstock.repository.BeerRepository;
 import org.hamcrest.MatcherAssert;
@@ -57,6 +58,18 @@ public class BeerServiceTest {
 
         Assertions.assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(expectedBeerDTO));
 
+    }
+
+    @Test
+    void whenValidBeerNameIsGivenThenReturnABeer() throws BeerNotFoundException {
+        BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
+
+        Mockito.when(beerRepository.findByName(expectedFoundBeer.getName())).thenReturn(Optional.of(expectedFoundBeer));
+
+        BeerDTO foundBeerDTO = beerService.findByName(expectedFoundBeerDTO.getName());
+
+        MatcherAssert.assertThat(foundBeerDTO, Matchers.is(Matchers.equalTo(expectedFoundBeerDTO)));
     }
 
 }
